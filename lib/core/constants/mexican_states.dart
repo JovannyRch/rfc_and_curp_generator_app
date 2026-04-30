@@ -1,0 +1,53 @@
+class MexicanStates {
+  static const List<Map<String, String>> states = [
+    {'code': 'AS', 'name': 'Aguascalientes'},
+    {'code': 'BC', 'name': 'Baja California'},
+    {'code': 'BS', 'name': 'Baja California Sur'},
+    {'code': 'CC', 'name': 'Campeche'},
+    {'code': 'CL', 'name': 'Coahuila'},
+    {'code': 'CM', 'name': 'Colima'},
+    {'code': 'CS', 'name': 'Chiapas'},
+    {'code': 'CH', 'name': 'Chihuahua'},
+    {'code': 'DF', 'name': 'Ciudad de México'},
+    {'code': 'DG', 'name': 'Durango'},
+    {'code': 'GR', 'name': 'Guerrero'},
+    {'code': 'GT', 'name': 'Guanajuato'},
+    {'code': 'HG', 'name': 'Hidalgo'},
+    {'code': 'JC', 'name': 'Jalisco'},
+    {'code': 'MC', 'name': 'México'},
+    {'code': 'MN', 'name': 'Michoacán'},
+    {'code': 'MS', 'name': 'Morelos'},
+    {'code': 'NT', 'name': 'Nayarit'},
+    {'code': 'NL', 'name': 'Nuevo León'},
+    {'code': 'OC', 'name': 'Oaxaca'},
+    {'code': 'PL', 'name': 'Puebla'},
+    {'code': 'QT', 'name': 'Querétaro'},
+    {'code': 'QR', 'name': 'Quintana Roo'},
+    {'code': 'SP', 'name': 'San Luis Potosí'},
+    {'code': 'SL', 'name': 'Sinaloa'},
+    {'code': 'SR', 'name': 'Sonora'},
+    {'code': 'TC', 'name': 'Tabasco'},
+    {'code': 'TS', 'name': 'Tamaulipas'},
+    {'code': 'TL', 'name': 'Tlaxcala'},
+    {'code': 'VZ', 'name': 'Veracruz'},
+    {'code': 'YN', 'name': 'Yucatán'},
+    {'code': 'ZS', 'name': 'Zacatecas'},
+    {'code': 'NE', 'name': 'Nacido en el Extranjero'},
+  ];
+
+  static String getCode(String name) {
+    final state = states.firstWhere(
+      (s) => s['name'] == name,
+      orElse: () => {'code': 'NE', 'name': 'Nacido en el Extranjero'},
+    );
+    return state['code']!;
+  }
+
+  static String getName(String code) {
+    final state = states.firstWhere(
+      (s) => s['code'] == code,
+      orElse: () => {'code': 'NE', 'name': 'Nacido en el Extranjero'},
+    );
+    return state['name']!;
+  }
+}
