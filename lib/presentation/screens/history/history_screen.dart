@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:rfc_and_curp_helper/domain/entities/calculation_entity.dart';
 import 'package:rfc_and_curp_helper/presentation/providers/history_provider.dart';
+import 'package:rfc_and_curp_helper/presentation/providers/settings_provider.dart';
+import 'package:rfc_and_curp_helper/presentation/widgets/banner_ad_card.dart';
 
 class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key});
@@ -12,6 +14,7 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final historyAsync = ref.watch(historyProvider);
+    final removeAds = ref.watch(removeAdsProvider);
 
     return SafeArea(
       bottom: false,
@@ -27,6 +30,7 @@ class HistoryScreen extends ConsumerWidget {
                   ? null
                   : () => _showClearDialog(context, ref),
             ),
+            if (!removeAds) const BannerAdCard(),
             const SizedBox(height: 20),
             if (calculations.isEmpty)
               const _EmptyHistory()

@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:rfc_and_curp_helper/core/router/app_router.dart';
 import 'package:rfc_and_curp_helper/domain/entities/calculation_entity.dart';
 import 'package:rfc_and_curp_helper/presentation/providers/history_provider.dart';
-import 'package:rfc_and_curp_helper/presentation/providers/settings_provider.dart';
-import 'package:rfc_and_curp_helper/presentation/widgets/ad_placeholder_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -14,7 +12,6 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final removeAds = ref.watch(removeAdsProvider);
     final history =
         ref.watch(historyProvider).valueOrNull ?? const <CalculationEntity>[];
 
@@ -57,8 +54,6 @@ class HomeScreen extends ConsumerWidget {
             _EmptyRecentCard(message: 'noHistoryDescription'.tr())
           else
             ...history.take(3).map(_RecentCalculationTile.new),
-          const SizedBox(height: 20),
-          if (!removeAds) const AdPlaceholderCard(),
           const SizedBox(height: 40),
         ],
       ),

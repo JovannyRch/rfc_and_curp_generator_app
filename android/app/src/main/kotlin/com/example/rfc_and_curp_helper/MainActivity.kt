@@ -1,4 +1,4 @@
-package com.example.rfc_and_curp_helper
+package www.jovannyrch.curp_rfc_calculator
 
 import io.flutter.embedding.android.FlutterActivity
 

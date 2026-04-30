@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:rfc_and_curp_helper/core/router/app_router.dart';
 import 'package:rfc_and_curp_helper/core/theme/app_theme.dart';
@@ -10,6 +12,12 @@ import 'package:rfc_and_curp_helper/presentation/providers/theme_provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS)) {
+    await MobileAds.instance.initialize();
+  }
 
   await Hive.initFlutter();
   Hive.registerAdapter(CalculationModelAdapter());

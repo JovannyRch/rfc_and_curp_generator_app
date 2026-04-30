@@ -6,7 +6,11 @@ import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:rfc_and_curp_helper/core/constants/mexican_states.dart';
 import 'package:rfc_and_curp_helper/domain/usecases/curp_calculator.dart';
+import 'package:rfc_and_curp_helper/presentation/providers/ad_provider.dart';
 import 'package:rfc_and_curp_helper/presentation/providers/history_provider.dart';
+import 'package:rfc_and_curp_helper/presentation/providers/review_prompt_provider.dart';
+import 'package:rfc_and_curp_helper/presentation/providers/settings_provider.dart';
+import 'package:rfc_and_curp_helper/presentation/widgets/banner_ad_card.dart';
 import 'package:rfc_and_curp_helper/presentation/widgets/result_card.dart';
 
 enum _CurpMode { withData, random }
@@ -88,9 +92,17 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
         _result = result;
         _randomProfile = null;
       });
+      await ref.read(adControllerProvider).trackCalculation();
+      await ref
+          .read(reviewPromptControllerProvider)
+          .recordSuccessfulCalculation();
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('calculationSaved'.tr())));
+    } catch (_) {
+      await ref.read(reviewPromptControllerProvider).markError();
+      rethrow;
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -117,9 +129,17 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
         _result = result;
         _randomProfile = profile;
       });
+      await ref.read(adControllerProvider).trackCalculation();
+      await ref
+          .read(reviewPromptControllerProvider)
+          .recordSuccessfulCalculation();
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('randomCurpGenerated'.tr())));
+    } catch (_) {
+      await ref.read(reviewPromptControllerProvider).markError();
+      rethrow;
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -128,6 +148,7 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
   Future<void> _copyResult() async {
     if (_result == null) return;
     await Clipboard.setData(ClipboardData(text: _result!));
+    await ref.read(reviewPromptControllerProvider).recordResultEngagement();
     if (mounted) {
       ScaffoldMessenger.of(
         context,
@@ -138,11 +159,13 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
   Future<void> _shareResult() async {
     if (_result == null) return;
     await Share.share(_result!);
+    await ref.read(reviewPromptControllerProvider).recordResultEngagement();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final removeAds = ref.watch(removeAdsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -403,6 +426,7 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
               onCopy: _copyResult,
               onShare: _shareResult,
             ),
+            if (!removeAds) const BannerAdCard(),
             if (_randomProfile != null) ...[
               const SizedBox(height: 16),
               Container(

@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:in_app_review/in_app_review.dart';
+import 'package:rfc_and_curp_helper/presentation/providers/review_prompt_provider.dart';
 import 'package:rfc_and_curp_helper/presentation/providers/settings_provider.dart';
 import 'package:rfc_and_curp_helper/presentation/providers/theme_provider.dart';
 
@@ -11,7 +11,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
-    final removeAds = ref.watch(removeAdsProvider);
+    final premiumState = ref.watch(premiumControllerProvider);
     final theme = Theme.of(context);
 
     return SafeArea(
@@ -78,34 +78,76 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           _SettingsGroup(
-            title: 'removeAds'.tr(),
+            title: 'premiumLifetime'.tr(),
             children: [
-              SwitchListTile.adaptive(
+              ListTile(
                 contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.workspace_premium_outlined),
-                title: Text('removeAds'.tr()),
+                leading: const Icon(Icons.workspace_premium_outlined),
+                title: Text('premiumLifetime'.tr()),
                 subtitle: Text(
-                  removeAds ? 'premiumEnabled'.tr() : 'removeAdsDesc'.tr(),
+                  premiumState.isPremium
+                      ? 'premiumBenefitsActive'.tr()
+                      : premiumState.productDetails?.price ??
+                            'premiumUnavailable'.tr(),
                 ),
-                value: removeAds,
-                onChanged: (value) async {
-                  if (value && !removeAds) {
-                    await ref
-                        .read(removeAdsProvider.notifier)
-                        .purchaseRemoveAds();
-                  } else {
-                    await ref
-                        .read(removeAdsProvider.notifier)
-                        .setRemoveAds(value);
-                  }
-                },
+                trailing: premiumState.isPremium
+                    ? Icon(
+                        Icons.check_circle_rounded,
+                        color: theme.colorScheme.primary,
+                      )
+                    : premiumState.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : null,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'premiumBenefits'.tr(),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed:
+                          premiumState.isPremium ||
+                              premiumState.isLoading ||
+                              premiumState.productDetails == null
+                          ? null
+                          : () => ref
+                                .read(premiumControllerProvider.notifier)
+                                .purchasePremium(),
+                      icon: const Icon(Icons.lock_open_rounded),
+                      label: Text('unlockPremium'.tr()),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: premiumState.isLoading
+                          ? null
+                          : () => ref
+                                .read(premiumControllerProvider.notifier)
+                                .restorePurchases(),
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: Text('restorePurchases'.tr()),
+                    ),
+                  ),
+                ],
               ),
               const Divider(height: 1),
               _SettingsTile(
                 icon: Icons.star_outline_rounded,
                 title: 'rateApp'.tr(),
                 subtitle: 'rateAppDesc'.tr(),
-                onTap: _requestReview,
+                onTap: () =>
+                    ref.read(reviewPromptControllerProvider).requestReviewNow(),
               ),
             ],
           ),
@@ -139,13 +181,6 @@ class SettingsScreen extends ConsumerWidget {
       'es' => 'spanish',
       _ => 'english',
     };
-  }
-
-  Future<void> _requestReview() async {
-    final inAppReview = InAppReview.instance;
-    if (await inAppReview.isAvailable()) {
-      await inAppReview.requestReview();
-    }
   }
 
   void _showLanguageSheet(BuildContext context) {
