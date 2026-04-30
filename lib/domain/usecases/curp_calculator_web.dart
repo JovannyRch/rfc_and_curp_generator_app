@@ -1,0 +1,70 @@
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
+
+import 'package:rfc_and_curp_helper/core/constants/mexican_states.dart';
+import 'package:web/web.dart' as web;
+
+import 'curp_calculator_native.dart' as native;
+
+String calculateCurp({
+  required String firstName,
+  required String lastName,
+  required String secondLastName,
+  required DateTime birthDate,
+  required String gender,
+  required String state,
+}) {
+  try {
+    final curp = web.window.getProperty<JSObject?>('curp'.toJS);
+    if (curp == null) {
+      return native.calculateCurp(
+        firstName: firstName,
+        lastName: lastName,
+        secondLastName: secondLastName,
+        birthDate: birthDate,
+        gender: gender,
+        state: state,
+      );
+    }
+
+    final persona = curp.callMethod<JSObject>('getPersona'.toJS);
+    persona.setProperty('nombre'.toJS, firstName.trim().toJS);
+    persona.setProperty('apellidoPaterno'.toJS, lastName.trim().toJS);
+    persona.setProperty('apellidoMaterno'.toJS, secondLastName.trim().toJS);
+    persona.setProperty(
+      'genero'.toJS,
+      (gender.toUpperCase() == 'MALE' ? 'H' : 'M').toJS,
+    );
+    persona.setProperty('estado'.toJS, MexicanStates.getCode(state).toJS);
+    persona.setProperty(
+      'fechaNacimiento'.toJS,
+      _formatBirthDate(birthDate).toJS,
+    );
+
+    final result = curp.callMethod<JSString?>(
+      'generar'.toJS,
+      <JSAny?>[persona].toJS,
+    );
+    final dartResult = result?.toDart;
+    if (dartResult != null && dartResult.isNotEmpty) {
+      return dartResult;
+    }
+  } catch (_) {
+    // Keep native platforms and script-load failures functional.
+  }
+
+  return native.calculateCurp(
+    firstName: firstName,
+    lastName: lastName,
+    secondLastName: secondLastName,
+    birthDate: birthDate,
+    gender: gender,
+    state: state,
+  );
+}
+
+String _formatBirthDate(DateTime date) {
+  final day = date.day.toString().padLeft(2, '0');
+  final month = date.month.toString().padLeft(2, '0');
+  return '$day-$month-${date.year}';
+}

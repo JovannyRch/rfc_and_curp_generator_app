@@ -25,12 +25,20 @@ class ResultCard extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             theme.colorScheme.primaryContainer,
-            theme.colorScheme.tertiaryContainer,
+            theme.colorScheme.secondaryContainer,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.shadow.withValues(alpha: 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,16 +54,22 @@ class ResultCard extends StatelessWidget {
           Text(
             'approximateCalculation'.tr(),
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+              color: theme.colorScheme.onPrimaryContainer.withValues(
+                alpha: 0.8,
+              ),
             ),
           ),
           const SizedBox(height: 18),
-          SelectableText(
-            result,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-              letterSpacing: 2.2,
-              color: theme.colorScheme.onPrimaryContainer,
+          SelectionArea(
+            child: Text(
+              result,
+              softWrap: true,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.0,
+                height: 1.15,
+                color: theme.colorScheme.onPrimaryContainer,
+              ),
             ),
           ),
           const SizedBox(height: 20),

@@ -12,7 +12,8 @@ class CurpCalculatorScreen extends ConsumerStatefulWidget {
   const CurpCalculatorScreen({super.key});
 
   @override
-  ConsumerState<CurpCalculatorScreen> createState() => _CurpCalculatorScreenState();
+  ConsumerState<CurpCalculatorScreen> createState() =>
+      _CurpCalculatorScreenState();
 }
 
 class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
@@ -49,19 +50,25 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
 
   Future<void> _calculate() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_birthDate == null || _selectedGender == null || _selectedState == null) {
+    if (_birthDate == null ||
+        _selectedGender == null ||
+        _selectedState == null) {
       final message = _birthDate == null
           ? 'selectBirthDate'.tr()
           : _selectedGender == null
-              ? 'selectGender'.tr()
-              : 'selectState'.tr();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+          ? 'selectGender'.tr()
+          : 'selectState'.tr();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
       return;
     }
 
     setState(() => _isLoading = true);
     try {
-      final result = await ref.read(historyProvider.notifier).saveCurpCalculation(
+      final result = await ref
+          .read(historyProvider.notifier)
+          .saveCurpCalculation(
             firstName: _firstNameController.text,
             lastName: _lastNameController.text,
             secondLastName: _secondLastNameController.text,
@@ -72,9 +79,9 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
 
       if (!mounted) return;
       setState(() => _result = result);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('calculationSaved'.tr())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('calculationSaved'.tr())));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -84,9 +91,9 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
     if (_result == null) return;
     await Clipboard.setData(ClipboardData(text: _result!));
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('copied'.tr())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('copied'.tr())));
     }
   }
 
@@ -116,10 +123,13 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
               gradient: LinearGradient(
                 colors: [
                   theme.colorScheme.primaryContainer,
-                  theme.colorScheme.surfaceContainerHighest,
+                  theme.colorScheme.secondaryContainer,
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,6 +156,14 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.colorScheme.shadow.withValues(alpha: 0.04),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Form(
               key: _formKey,
@@ -154,7 +172,9 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
                 children: [
                   Text(
                     'personalData'.tr(),
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -164,8 +184,9 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
                       labelText: 'firstName'.tr(),
                       prefixIcon: const Icon(Icons.person_outline_rounded),
                     ),
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'enterFirstName'.tr() : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'enterFirstName'.tr()
+                        : null,
                   ),
                   const SizedBox(height: 14),
                   TextFormField(
@@ -175,8 +196,9 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
                       labelText: 'lastName'.tr(),
                       prefixIcon: const Icon(Icons.badge_outlined),
                     ),
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'enterLastName'.tr() : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'enterLastName'.tr()
+                        : null,
                   ),
                   const SizedBox(height: 14),
                   TextFormField(
@@ -215,10 +237,15 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
                     ),
                     items: [
                       DropdownMenuItem(value: 'MALE', child: Text('male'.tr())),
-                      DropdownMenuItem(value: 'FEMALE', child: Text('female'.tr())),
+                      DropdownMenuItem(
+                        value: 'FEMALE',
+                        child: Text('female'.tr()),
+                      ),
                     ],
-                    onChanged: (value) => setState(() => _selectedGender = value),
-                    validator: (value) => value == null ? 'selectGender'.tr() : null,
+                    onChanged: (value) =>
+                        setState(() => _selectedGender = value),
+                    validator: (value) =>
+                        value == null ? 'selectGender'.tr() : null,
                   ),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
@@ -235,8 +262,10 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
                           ),
                         )
                         .toList(),
-                    onChanged: (value) => setState(() => _selectedState = value),
-                    validator: (value) => value == null ? 'selectState'.tr() : null,
+                    onChanged: (value) =>
+                        setState(() => _selectedState = value),
+                    validator: (value) =>
+                        value == null ? 'selectState'.tr() : null,
                   ),
                   const SizedBox(height: 20),
                   FilledButton.icon(

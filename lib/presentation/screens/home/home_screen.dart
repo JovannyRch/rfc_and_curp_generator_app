@@ -15,7 +15,8 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final removeAds = ref.watch(removeAdsProvider);
-    final history = ref.watch(historyProvider).valueOrNull ?? const <CalculationEntity>[];
+    final history =
+        ref.watch(historyProvider).valueOrNull ?? const <CalculationEntity>[];
 
     return SafeArea(
       bottom: false,
@@ -88,10 +89,17 @@ class _HeroSection extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
         gradient: const LinearGradient(
-          colors: [Color(0xFF0D5B71), Color(0xFF0F8B74), Color(0xFF0B314F)],
+          colors: [Color(0xFF002F2A), Color(0xFF1E5B4F), Color(0xFF611232)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1F161A1D),
+            blurRadius: 28,
+            offset: Offset(0, 14),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,6 +109,7 @@ class _HeroSection extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
             ),
             child: Text(
               'homeBadge'.tr(),
@@ -165,6 +174,7 @@ class _HeroMetric extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,10 +218,14 @@ class _FeatureStrip extends StatelessWidget {
             (item) => Expanded(
               child: Container(
                 margin: EdgeInsets.only(right: item == items.last ? 0 : 10),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
                 ),
                 child: Column(
                   children: [
@@ -265,6 +279,14 @@ class _ActionCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.shadow.withValues(alpha: 0.05),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,20 +313,28 @@ class _ActionCard extends StatelessWidget {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_rounded),
+                  Icon(Icons.arrow_forward_rounded, color: accent),
                 ],
               ),
               const SizedBox(height: 18),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  subtitle,
+                  style: theme.textTheme.labelLarge?.copyWith(color: accent),
+                ),
+              ),
+              const SizedBox(height: 14),
               Text(
                 detail,
                 style: theme.textTheme.bodyMedium?.copyWith(
@@ -334,10 +364,14 @@ class _EmptyRecentCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
-          Icon(Icons.history_toggle_off_rounded, color: theme.colorScheme.primary),
+          Icon(
+            Icons.history_toggle_off_rounded,
+            color: theme.colorScheme.primary,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -369,6 +403,7 @@ class _RecentCalculationTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
@@ -376,13 +411,20 @@ class _RecentCalculationTile extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: (isCurp ? theme.colorScheme.primary : theme.colorScheme.tertiary)
-                  .withValues(alpha: 0.12),
+              color:
+                  (isCurp
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.tertiary)
+                      .withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
-              isCurp ? Icons.badge_outlined : Icons.account_balance_wallet_outlined,
-              color: isCurp ? theme.colorScheme.primary : theme.colorScheme.tertiary,
+              isCurp
+                  ? Icons.badge_outlined
+                  : Icons.account_balance_wallet_outlined,
+              color: isCurp
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.tertiary,
             ),
           ),
           const SizedBox(width: 14),

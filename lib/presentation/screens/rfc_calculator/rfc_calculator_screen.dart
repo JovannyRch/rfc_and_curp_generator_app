@@ -11,7 +11,8 @@ class RfcCalculatorScreen extends ConsumerStatefulWidget {
   const RfcCalculatorScreen({super.key});
 
   @override
-  ConsumerState<RfcCalculatorScreen> createState() => _RfcCalculatorScreenState();
+  ConsumerState<RfcCalculatorScreen> createState() =>
+      _RfcCalculatorScreenState();
 }
 
 class _RfcCalculatorScreenState extends ConsumerState<RfcCalculatorScreen> {
@@ -47,15 +48,17 @@ class _RfcCalculatorScreenState extends ConsumerState<RfcCalculatorScreen> {
   Future<void> _calculate() async {
     if (!_formKey.currentState!.validate()) return;
     if (_birthDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('selectBirthDate'.tr())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('selectBirthDate'.tr())));
       return;
     }
 
     setState(() => _isLoading = true);
     try {
-      final result = await ref.read(historyProvider.notifier).saveRfcCalculation(
+      final result = await ref
+          .read(historyProvider.notifier)
+          .saveRfcCalculation(
             firstName: _firstNameController.text,
             lastName: _lastNameController.text,
             secondLastName: _secondLastNameController.text,
@@ -64,9 +67,9 @@ class _RfcCalculatorScreenState extends ConsumerState<RfcCalculatorScreen> {
 
       if (!mounted) return;
       setState(() => _result = result);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('calculationSaved'.tr())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('calculationSaved'.tr())));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -76,9 +79,9 @@ class _RfcCalculatorScreenState extends ConsumerState<RfcCalculatorScreen> {
     if (_result == null) return;
     await Clipboard.setData(ClipboardData(text: _result!));
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('copied'.tr())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('copied'.tr())));
     }
   }
 
@@ -108,10 +111,13 @@ class _RfcCalculatorScreenState extends ConsumerState<RfcCalculatorScreen> {
               gradient: LinearGradient(
                 colors: [
                   theme.colorScheme.tertiaryContainer,
-                  theme.colorScheme.surfaceContainerHighest,
+                  theme.colorScheme.secondaryContainer,
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,6 +144,14 @@ class _RfcCalculatorScreenState extends ConsumerState<RfcCalculatorScreen> {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.colorScheme.shadow.withValues(alpha: 0.04),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Form(
               key: _formKey,
@@ -146,7 +160,9 @@ class _RfcCalculatorScreenState extends ConsumerState<RfcCalculatorScreen> {
                 children: [
                   Text(
                     'personalData'.tr(),
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -156,8 +172,9 @@ class _RfcCalculatorScreenState extends ConsumerState<RfcCalculatorScreen> {
                       labelText: 'firstName'.tr(),
                       prefixIcon: const Icon(Icons.person_outline_rounded),
                     ),
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'enterFirstName'.tr() : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'enterFirstName'.tr()
+                        : null,
                   ),
                   const SizedBox(height: 14),
                   TextFormField(
@@ -167,8 +184,9 @@ class _RfcCalculatorScreenState extends ConsumerState<RfcCalculatorScreen> {
                       labelText: 'lastName'.tr(),
                       prefixIcon: const Icon(Icons.badge_outlined),
                     ),
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'enterLastName'.tr() : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'enterLastName'.tr()
+                        : null,
                   ),
                   const SizedBox(height: 14),
                   TextFormField(

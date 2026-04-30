@@ -38,8 +38,11 @@ class MainScaffold extends StatelessWidget {
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
         decoration: BoxDecoration(
           color: theme.navigationBarTheme.backgroundColor,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
           boxShadow: [
             BoxShadow(
               color: theme.colorScheme.shadow.withValues(alpha: 0.08),
@@ -51,6 +54,7 @@ class MainScaffold extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: NavigationBar(
+            backgroundColor: Colors.transparent,
             selectedIndex: selectedIndex,
             onDestinationSelected: (index) => _onItemTapped(index, context),
             destinations: [

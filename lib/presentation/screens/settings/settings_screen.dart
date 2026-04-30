@@ -19,17 +19,37 @@ class SettingsScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
         children: [
-          Text(
-            'settings'.tr(),
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w900,
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  theme.colorScheme.surface,
+                  theme.colorScheme.secondaryContainer,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'settingsSubtitle'.tr(),
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'settings'.tr(),
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'settingsSubtitle'.tr(),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 20),
@@ -64,13 +84,19 @@ class SettingsScreen extends ConsumerWidget {
                 contentPadding: EdgeInsets.zero,
                 secondary: const Icon(Icons.workspace_premium_outlined),
                 title: Text('removeAds'.tr()),
-                subtitle: Text(removeAds ? 'premiumEnabled'.tr() : 'removeAdsDesc'.tr()),
+                subtitle: Text(
+                  removeAds ? 'premiumEnabled'.tr() : 'removeAdsDesc'.tr(),
+                ),
                 value: removeAds,
                 onChanged: (value) async {
                   if (value && !removeAds) {
-                    await ref.read(removeAdsProvider.notifier).purchaseRemoveAds();
+                    await ref
+                        .read(removeAdsProvider.notifier)
+                        .purchaseRemoveAds();
                   } else {
-                    await ref.read(removeAdsProvider.notifier).setRemoveAds(value);
+                    await ref
+                        .read(removeAdsProvider.notifier)
+                        .setRemoveAds(value);
                   }
                 },
               ),
@@ -133,10 +159,15 @@ class SettingsScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('language'.tr(), style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'language'.tr(),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 12),
               ListTile(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
                 title: Text('english'.tr()),
                 trailing: context.locale.languageCode == 'en'
                     ? const Icon(Icons.check_rounded)
@@ -147,7 +178,9 @@ class SettingsScreen extends ConsumerWidget {
                 },
               ),
               ListTile(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
                 title: Text('spanish'.tr()),
                 trailing: context.locale.languageCode == 'es'
                     ? const Icon(Icons.check_rounded)
@@ -164,7 +197,11 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showThemeSheet(BuildContext context, WidgetRef ref, ThemeMode currentMode) {
+  void _showThemeSheet(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeMode currentMode,
+  ) {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -183,9 +220,13 @@ class SettingsScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(18),
                   ),
                   title: Text(_themeLabel(mode).tr()),
-                  trailing: currentMode == mode ? const Icon(Icons.check_rounded) : null,
+                  trailing: currentMode == mode
+                      ? const Icon(Icons.check_rounded)
+                      : null,
                   onTap: () async {
-                    await ref.read(themeModeProvider.notifier).setThemeMode(mode);
+                    await ref
+                        .read(themeModeProvider.notifier)
+                        .setThemeMode(mode);
                     if (sheetContext.mounted) Navigator.pop(sheetContext);
                   },
                 ),
@@ -226,6 +267,7 @@ class _SettingsGroup extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: theme.colorScheme.outlineVariant),
           ),
           child: Column(children: children),
         ),

@@ -39,11 +39,13 @@ class HistoryScreen extends ConsumerWidget {
                   child: _HistoryCard(
                     calculation: calculation,
                     onCopy: () async {
-                      await Clipboard.setData(ClipboardData(text: calculation.result));
+                      await Clipboard.setData(
+                        ClipboardData(text: calculation.result),
+                      );
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('copied'.tr())),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('copied'.tr())));
                       }
                     },
                     onShare: () => Share.share(calculation.result),
@@ -77,9 +79,9 @@ class HistoryScreen extends ConsumerWidget {
               await ref.read(historyProvider.notifier).clearHistory();
               if (context.mounted) {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('historyCleared'.tr())),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('historyCleared'.tr())));
               }
             },
             child: Text('clear'.tr()),
@@ -103,25 +105,39 @@ class _Header extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'history'.tr(),
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  theme.colorScheme.surface,
+                  theme.colorScheme.surfaceContainerHigh,
+                ],
               ),
-              const SizedBox(height: 6),
-              Text(
-                '$total ${'historySubtitle'.tr()}',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'history'.tr(),
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 6),
+                Text(
+                  '$total ${'historySubtitle'.tr()}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
+        const SizedBox(width: 12),
         IconButton.filledTonal(
           onPressed: onClear,
           icon: const Icon(Icons.delete_sweep_rounded),
@@ -143,9 +159,19 @@ class _HistorySummary extends StatelessWidget {
 
     return Row(
       children: [
-        Expanded(child: _SummaryMetric(label: 'curpCalculator'.tr(), value: '$curpCount')),
+        Expanded(
+          child: _SummaryMetric(
+            label: 'curpCalculator'.tr(),
+            value: '$curpCount',
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: _SummaryMetric(label: 'rfcCalculator'.tr(), value: '$rfcCount')),
+        Expanded(
+          child: _SummaryMetric(
+            label: 'rfcCalculator'.tr(),
+            value: '$rfcCount',
+          ),
+        ),
       ],
     );
   }
@@ -164,8 +190,14 @@ class _SummaryMetric extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.surface,
+            theme.colorScheme.surfaceContainerHigh,
+          ],
+        ),
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,16 +233,22 @@ class _EmptyHistory extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
-          Icon(Icons.history_toggle_off_rounded,
-              size: 56, color: theme.colorScheme.primary),
+          Icon(
+            Icons.history_toggle_off_rounded,
+            size: 56,
+            color: theme.colorScheme.primary,
+          ),
           const SizedBox(height: 16),
           Text(
             'noHistory'.tr(),
             textAlign: TextAlign.center,
-            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -243,13 +281,23 @@ class _HistoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isCurp = calculation.type == 'CURP';
-    final accent = isCurp ? theme.colorScheme.primary : theme.colorScheme.tertiary;
+    final accent = isCurp
+        ? theme.colorScheme.primary
+        : theme.colorScheme.tertiary;
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.shadow.withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,7 +305,10 @@ class _HistoryCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(999),
@@ -280,9 +331,10 @@ class _HistoryCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             calculation.result,
+            softWrap: true,
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w900,
-              letterSpacing: 1.8,
+              letterSpacing: 1.2,
             ),
           ),
           const SizedBox(height: 8),

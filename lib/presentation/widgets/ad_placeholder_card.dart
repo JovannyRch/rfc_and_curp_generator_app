@@ -13,11 +13,14 @@ class AdPlaceholderCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            theme.colorScheme.surfaceContainerHighest,
-            theme.colorScheme.surfaceContainer,
+            theme.colorScheme.surfaceContainerHigh,
+            theme.colorScheme.surface,
           ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
@@ -25,12 +28,12 @@ class AdPlaceholderCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
+              color: theme.colorScheme.secondaryContainer,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               Icons.campaign_outlined,
-              color: theme.colorScheme.onPrimaryContainer,
+              color: theme.colorScheme.onSecondaryContainer,
             ),
           ),
           const SizedBox(width: 14),
