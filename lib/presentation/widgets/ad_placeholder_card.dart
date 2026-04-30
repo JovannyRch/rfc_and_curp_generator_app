@@ -28,12 +28,12 @@ class AdPlaceholderCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer,
+              color: theme.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               Icons.campaign_outlined,
-              color: theme.colorScheme.onSecondaryContainer,
+              color: theme.colorScheme.onPrimaryContainer,
             ),
           ),
           const SizedBox(width: 14),

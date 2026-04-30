@@ -14,7 +14,7 @@ class MexicanStates {
     {'code': 'GT', 'name': 'Guanajuato'},
     {'code': 'HG', 'name': 'Hidalgo'},
     {'code': 'JC', 'name': 'Jalisco'},
-    {'code': 'MC', 'name': 'México'},
+    {'code': 'MC', 'name': 'Estado De Mexico'},
     {'code': 'MN', 'name': 'Michoacán'},
     {'code': 'MS', 'name': 'Morelos'},
     {'code': 'NT', 'name': 'Nayarit'},

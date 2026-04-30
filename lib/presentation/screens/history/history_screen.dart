@@ -329,6 +329,21 @@ class _HistoryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              _toolLabel(calculation.tool).tr(),
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           Text(
             calculation.result,
             softWrap: true,
@@ -382,5 +397,16 @@ class _HistoryCard extends StatelessWidget {
     final hour = date.hour.toString().padLeft(2, '0');
     final minute = date.minute.toString().padLeft(2, '0');
     return '$day/$month/${date.year}  $hour:$minute';
+  }
+
+  String _toolLabel(String tool) {
+    return switch (tool) {
+      'curp_calculator' => 'toolCurpCalculator',
+      'curp_random' => 'toolCurpRandom',
+      'rfc_calculator' => 'toolRfcCalculator',
+      'rfc_random' => 'toolRfcRandom',
+      'rfc_moral' => 'toolRfcMoral',
+      _ => 'toolLegacy',
+    };
   }
 }

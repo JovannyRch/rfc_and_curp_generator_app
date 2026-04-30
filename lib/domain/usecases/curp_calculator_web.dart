@@ -31,10 +31,7 @@ String calculateCurp({
     persona.setProperty('nombre'.toJS, firstName.trim().toJS);
     persona.setProperty('apellidoPaterno'.toJS, lastName.trim().toJS);
     persona.setProperty('apellidoMaterno'.toJS, secondLastName.trim().toJS);
-    persona.setProperty(
-      'genero'.toJS,
-      (gender.toUpperCase() == 'MALE' ? 'H' : 'M').toJS,
-    );
+    persona.setProperty('genero'.toJS, _genderCode(gender).toJS);
     persona.setProperty('estado'.toJS, MexicanStates.getCode(state).toJS);
     persona.setProperty(
       'fechaNacimiento'.toJS,
@@ -63,8 +60,34 @@ String calculateCurp({
   );
 }
 
+bool validateCurp(String curp) {
+  try {
+    final curpLibrary = web.window.getProperty<JSObject?>('curp'.toJS);
+    if (curpLibrary == null) {
+      return native.validateCurp(curp);
+    }
+
+    final result = curpLibrary.callMethod<JSBoolean>(
+      'validar'.toJS,
+      [curp.toJS].toJS,
+    );
+    return result.toDart;
+  } catch (_) {
+    return native.validateCurp(curp);
+  }
+}
+
 String _formatBirthDate(DateTime date) {
   final day = date.day.toString().padLeft(2, '0');
   final month = date.month.toString().padLeft(2, '0');
   return '$day-$month-${date.year}';
+}
+
+String _genderCode(String gender) {
+  return switch (gender.toUpperCase()) {
+    'MALE' => 'H',
+    'FEMALE' => 'M',
+    'NON_BINARY' => 'X',
+    _ => 'M',
+  };
 }

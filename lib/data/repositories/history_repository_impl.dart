@@ -41,6 +41,7 @@ class HistoryRepositoryImpl implements HistoryRepository {
       gender: model.gender,
       state: model.state,
       result: model.result,
+      tool: model.tool,
       createdAt: model.createdAt,
     );
   }
@@ -57,6 +58,7 @@ class HistoryRepositoryImpl implements HistoryRepository {
       state: entity.state,
       result: entity.result,
       createdAt: entity.createdAt,
+      tool: entity.tool,
     );
   }
 }

@@ -4,14 +4,12 @@ class AppTheme {
   static const Color neutralBlack = Color(0xFF161A1D);
   static const Color burgundy = Color(0xFF9B2247);
   static const Color green = Color(0xFF1E5B4F);
-  static const Color gold = Color(0xFFA57F2C);
   static const Color coolGray = Color(0xFF98989A);
   static const Color darkBurgundy = Color(0xFF611232);
   static const Color darkGreen = Color(0xFF002F2A);
-  static const Color cream = Color(0xFFE6D194);
   static const Color lightCanvas = Color(0xFFF7F3EA);
-  static const Color lightSurface = Color(0xFFFFFCF6);
-  static const Color lightSurfaceAlt = Color(0xFFF1E7D0);
+  static const Color lightSurface = Color(0xFFFFFCF8);
+  static const Color lightSurfaceAlt = Color(0xFFF2ECE8);
   static const Color darkSurface = Color(0xFF0F1413);
   static const Color darkSurfaceAlt = Color(0xFF16201E);
 
@@ -27,13 +25,13 @@ class AppTheme {
       primaryContainer: isDark
           ? const Color(0xFF114139)
           : const Color(0xFFD4E3D9),
-      onPrimaryContainer: isDark ? cream : darkGreen,
-      secondary: gold,
-      onSecondary: neutralBlack,
+      onPrimaryContainer: isDark ? const Color(0xFFE0F1EA) : darkGreen,
+      secondary: burgundy,
+      onSecondary: Colors.white,
       secondaryContainer: isDark
-          ? const Color(0xFF4C3A13)
-          : const Color(0xFFF0E0B0),
-      onSecondaryContainer: isDark ? cream : const Color(0xFF4D3800),
+          ? const Color(0xFF4A1227)
+          : const Color(0xFFF1D3DD),
+      onSecondaryContainer: isDark ? const Color(0xFFF8DDE7) : darkBurgundy,
       tertiary: burgundy,
       onTertiary: Colors.white,
       tertiaryContainer: isDark
@@ -71,7 +69,7 @@ class AppTheme {
       inverseSurface: isDark ? const Color(0xFFECE6DA) : neutralBlack,
       onInverseSurface: isDark ? neutralBlack : Colors.white,
       inversePrimary: isDark ? const Color(0xFFA9D2C6) : darkGreen,
-      surfaceTint: isDark ? cream : green,
+      surfaceTint: green,
     );
 
     final base = ThemeData(
@@ -224,7 +222,7 @@ class AppTheme {
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? colorScheme.secondary
+              ? colorScheme.tertiary
               : colorScheme.surface,
         ),
         trackColor: WidgetStateProperty.resolveWith(

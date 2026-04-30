@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rfc_and_curp_helper/domain/usecases/rfc_calculator.dart';
 
@@ -104,6 +106,44 @@ void main() {
 
       expect(rfc.startsWith('NUGA900109'), isTrue);
       expect(rfc, hasLength(13));
+    });
+
+    test('random RFC profile returns a self-consistent RFC', () {
+      final profile = RfcCalculator.generateRandomProfile(random: Random(42));
+
+      expect(profile.rfc, hasLength(13));
+      expect(
+        profile.rfc,
+        RfcCalculator.calculate(
+          firstName: profile.firstName,
+          paternalLastName: profile.paternalLastName,
+          maternalLastName: profile.maternalLastName,
+          birthDate: profile.birthDate,
+        ),
+      );
+    });
+  });
+
+  group('RfcCalculator.calculateJuristicPerson', () {
+    test('matches the juristic person result from rfc-facil', () {
+      final rfc = RfcCalculator.calculateJuristicPerson(
+        legalName: 'Sonora Industrial Azucarera, S. de R. L.',
+        creationDate: DateTime(1982, 11, 29),
+      );
+
+      expect(rfc, 'SIA821129LS2');
+    });
+  });
+
+  group('RfcCalculator.validate', () {
+    test('returns true for known valid natural and juristic RFCs', () {
+      expect(RfcCalculator.validate('ZATJ870805CK6'), isTrue);
+      expect(RfcCalculator.validate('SIA821129LS2'), isTrue);
+    });
+
+    test('returns false for invalid verification digit', () {
+      expect(RfcCalculator.validate('ZATJ870805CK7'), isFalse);
+      expect(RfcCalculator.validate('SIA821129LS8'), isFalse);
     });
   });
 }

@@ -22,13 +22,14 @@ class CalculationModelAdapter extends TypeAdapter<CalculationModel> {
       ..gender = fields[6] as String
       ..state = fields[7] as String
       ..result = fields[8] as String
-      ..createdAt = fields[9] as DateTime;
+      ..createdAt = fields[9] as DateTime
+      ..tool = (fields[10] as String?) ?? 'legacy';
   }
 
   @override
   void write(BinaryWriter writer, CalculationModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -48,7 +49,9 @@ class CalculationModelAdapter extends TypeAdapter<CalculationModel> {
       ..writeByte(8)
       ..write(obj.result)
       ..writeByte(9)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(10)
+      ..write(obj.tool);
   }
 
   @override

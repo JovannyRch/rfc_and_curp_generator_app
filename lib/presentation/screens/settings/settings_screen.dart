@@ -25,7 +25,7 @@ class SettingsScreen extends ConsumerWidget {
               gradient: LinearGradient(
                 colors: [
                   theme.colorScheme.surface,
-                  theme.colorScheme.secondaryContainer,
+                  theme.colorScheme.primaryContainer,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

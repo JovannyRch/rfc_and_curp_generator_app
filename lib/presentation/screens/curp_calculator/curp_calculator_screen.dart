@@ -5,8 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:rfc_and_curp_helper/core/constants/mexican_states.dart';
+import 'package:rfc_and_curp_helper/domain/usecases/curp_calculator.dart';
 import 'package:rfc_and_curp_helper/presentation/providers/history_provider.dart';
 import 'package:rfc_and_curp_helper/presentation/widgets/result_card.dart';
+
+enum _CurpMode { withData, random }
 
 class CurpCalculatorScreen extends ConsumerStatefulWidget {
   const CurpCalculatorScreen({super.key});
@@ -26,7 +29,9 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
   String? _selectedGender;
   String? _selectedState;
   String? _result;
+  RandomCurpProfile? _randomProfile;
   bool _isLoading = false;
+  _CurpMode _mode = _CurpMode.withData;
 
   @override
   void dispose() {
@@ -75,13 +80,46 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
             birthDate: _birthDate!,
             gender: _selectedGender!,
             birthState: _selectedState!,
+            tool: 'curp_calculator',
           );
 
       if (!mounted) return;
-      setState(() => _result = result);
+      setState(() {
+        _result = result;
+        _randomProfile = null;
+      });
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('calculationSaved'.tr())));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _generateRandom() async {
+    setState(() => _isLoading = true);
+    try {
+      final profile = CurpCalculator.generateRandomProfile();
+      final result = await ref
+          .read(historyProvider.notifier)
+          .saveCurpCalculation(
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            secondLastName: profile.secondLastName,
+            birthDate: profile.birthDate,
+            gender: profile.gender,
+            birthState: profile.state,
+            tool: 'curp_random',
+          );
+
+      if (!mounted) return;
+      setState(() {
+        _result = result;
+        _randomProfile = profile;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('randomCurpGenerated'.tr())));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -123,7 +161,7 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
               gradient: LinearGradient(
                 colors: [
                   theme.colorScheme.primaryContainer,
-                  theme.colorScheme.secondaryContainer,
+                  theme.colorScheme.surfaceContainerHighest,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -151,138 +189,212 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: theme.colorScheme.outlineVariant),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(alpha: 0.04),
-                  blurRadius: 16,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Form(
-              key: _formKey,
+          SegmentedButton<_CurpMode>(
+            segments: [
+              ButtonSegment<_CurpMode>(
+                value: _CurpMode.withData,
+                icon: const Icon(Icons.badge_outlined),
+                label: Text('withData'.tr()),
+              ),
+              ButtonSegment<_CurpMode>(
+                value: _CurpMode.random,
+                icon: const Icon(Icons.shuffle_rounded),
+                label: Text('random'.tr()),
+              ),
+            ],
+            selected: {_mode},
+            onSelectionChanged: (selection) {
+              setState(() {
+                _mode = selection.first;
+              });
+            },
+          ),
+          const SizedBox(height: 20),
+          if (_mode == _CurpMode.random)
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: theme.colorScheme.outlineVariant),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.shadow.withValues(alpha: 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'personalData'.tr(),
+                    'randomCurp'.tr(),
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _firstNameController,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      labelText: 'firstName'.tr(),
-                      prefixIcon: const Icon(Icons.person_outline_rounded),
+                  const SizedBox(height: 8),
+                  Text(
+                    'randomCurpDetail'.tr(),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
-                    validator: (value) => value == null || value.trim().isEmpty
-                        ? 'enterFirstName'.tr()
-                        : null,
-                  ),
-                  const SizedBox(height: 14),
-                  TextFormField(
-                    controller: _lastNameController,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      labelText: 'lastName'.tr(),
-                      prefixIcon: const Icon(Icons.badge_outlined),
-                    ),
-                    validator: (value) => value == null || value.trim().isEmpty
-                        ? 'enterLastName'.tr()
-                        : null,
-                  ),
-                  const SizedBox(height: 14),
-                  TextFormField(
-                    controller: _secondLastNameController,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      labelText: 'secondLastName'.tr(),
-                      prefixIcon: const Icon(Icons.badge_outlined),
-                    ),
-                    validator: (value) => value == null || value.trim().isEmpty
-                        ? 'enterSecondLastName'.tr()
-                        : null,
-                  ),
-                  const SizedBox(height: 14),
-                  InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: _selectBirthDate,
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: 'birthDate'.tr(),
-                        prefixIcon: const Icon(Icons.calendar_today_outlined),
-                      ),
-                      child: Text(
-                        _birthDate == null
-                            ? 'selectBirthDate'.tr()
-                            : DateFormat('dd/MM/yyyy').format(_birthDate!),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  DropdownButtonFormField<String>(
-                    initialValue: _selectedGender,
-                    decoration: InputDecoration(
-                      labelText: 'gender'.tr(),
-                      prefixIcon: const Icon(Icons.wc_rounded),
-                    ),
-                    items: [
-                      DropdownMenuItem(value: 'MALE', child: Text('male'.tr())),
-                      DropdownMenuItem(
-                        value: 'FEMALE',
-                        child: Text('female'.tr()),
-                      ),
-                    ],
-                    onChanged: (value) =>
-                        setState(() => _selectedGender = value),
-                    validator: (value) =>
-                        value == null ? 'selectGender'.tr() : null,
-                  ),
-                  const SizedBox(height: 14),
-                  DropdownButtonFormField<String>(
-                    initialValue: _selectedState,
-                    decoration: InputDecoration(
-                      labelText: 'state'.tr(),
-                      prefixIcon: const Icon(Icons.location_on_outlined),
-                    ),
-                    items: MexicanStates.states
-                        .map(
-                          (state) => DropdownMenuItem<String>(
-                            value: state['name'],
-                            child: Text(state['name']!),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) =>
-                        setState(() => _selectedState = value),
-                    validator: (value) =>
-                        value == null ? 'selectState'.tr() : null,
                   ),
                   const SizedBox(height: 20),
                   FilledButton.icon(
-                    onPressed: _isLoading ? null : _calculate,
+                    onPressed: _isLoading ? null : _generateRandom,
                     icon: _isLoading
                         ? const SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Icon(Icons.auto_awesome_rounded),
-                    label: Text('calculate'.tr()),
+                        : const Icon(Icons.shuffle_rounded),
+                    label: Text('generateRandomCurp'.tr()),
                   ),
                 ],
               ),
+            )
+          else
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: theme.colorScheme.outlineVariant),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.shadow.withValues(alpha: 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'personalData'.tr(),
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _firstNameController,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: 'firstName'.tr(),
+                        prefixIcon: const Icon(Icons.person_outline_rounded),
+                      ),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                          ? 'enterFirstName'.tr()
+                          : null,
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: _lastNameController,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: 'lastName'.tr(),
+                        prefixIcon: const Icon(Icons.badge_outlined),
+                      ),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                          ? 'enterLastName'.tr()
+                          : null,
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: _secondLastNameController,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: 'secondLastName'.tr(),
+                        prefixIcon: const Icon(Icons.badge_outlined),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: _selectBirthDate,
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'birthDate'.tr(),
+                          prefixIcon: const Icon(Icons.calendar_today_outlined),
+                        ),
+                        child: Text(
+                          _birthDate == null
+                              ? 'selectBirthDate'.tr()
+                              : DateFormat('dd/MM/yyyy').format(_birthDate!),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    DropdownButtonFormField<String>(
+                      initialValue: _selectedGender,
+                      decoration: InputDecoration(
+                        labelText: 'gender'.tr(),
+                        prefixIcon: const Icon(Icons.wc_rounded),
+                      ),
+                      items: [
+                        DropdownMenuItem(
+                          value: 'MALE',
+                          child: Text('male'.tr()),
+                        ),
+                        DropdownMenuItem(
+                          value: 'FEMALE',
+                          child: Text('female'.tr()),
+                        ),
+                        DropdownMenuItem(
+                          value: 'NON_BINARY',
+                          child: Text('nonBinary'.tr()),
+                        ),
+                      ],
+                      onChanged: (value) =>
+                          setState(() => _selectedGender = value),
+                      validator: (value) =>
+                          value == null ? 'selectGender'.tr() : null,
+                    ),
+                    const SizedBox(height: 14),
+                    DropdownButtonFormField<String>(
+                      initialValue: _selectedState,
+                      decoration: InputDecoration(
+                        labelText: 'state'.tr(),
+                        prefixIcon: const Icon(Icons.location_on_outlined),
+                      ),
+                      items: MexicanStates.states
+                          .map(
+                            (state) => DropdownMenuItem<String>(
+                              value: state['name'],
+                              child: Text(state['name']!),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) =>
+                          setState(() => _selectedState = value),
+                      validator: (value) =>
+                          value == null ? 'selectState'.tr() : null,
+                    ),
+                    const SizedBox(height: 20),
+                    FilledButton.icon(
+                      onPressed: _isLoading ? null : _calculate,
+                      icon: _isLoading
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.auto_awesome_rounded),
+                      label: Text('calculate'.tr()),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
           if (_result != null) ...[
             const SizedBox(height: 20),
             ResultCard(
@@ -291,10 +403,55 @@ class _CurpCalculatorScreenState extends ConsumerState<CurpCalculatorScreen> {
               onCopy: _copyResult,
               onShare: _shareResult,
             ),
+            if (_randomProfile != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'generatedProfile'.tr(),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      '${_randomProfile!.firstName} ${_randomProfile!.lastName} ${_randomProfile!.secondLastName}',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${DateFormat('dd/MM/yyyy').format(_randomProfile!.birthDate)}  •  ${_genderLabel(_randomProfile!.gender).tr()}  •  ${_randomProfile!.state}',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
           const SizedBox(height: 36),
         ],
       ),
     );
+  }
+
+  String _genderLabel(String gender) {
+    return switch (gender) {
+      'MALE' => 'male',
+      'FEMALE' => 'female',
+      'NON_BINARY' => 'nonBinary',
+      _ => gender,
+    };
   }
 }

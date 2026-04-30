@@ -34,6 +34,9 @@ class CalculationModel extends HiveObject {
   @HiveField(9)
   late DateTime createdAt;
 
+  @HiveField(10)
+  late String tool;
+
   CalculationModel();
 
   CalculationModel.create({
@@ -47,5 +50,6 @@ class CalculationModel extends HiveObject {
     required this.state,
     required this.result,
     required this.createdAt,
+    required this.tool,
   });
 }

@@ -8,7 +8,17 @@ String calculateCurp({
   required String gender,
   required String state,
 }) {
-  final normalizedName = _normalizeString(firstName.toUpperCase()).trim();
+  _validateRequiredData(
+    firstName: firstName,
+    lastName: lastName,
+    birthDate: birthDate,
+    gender: gender,
+    state: state,
+  );
+
+  final normalizedName = _adjustCompound(
+    _normalizeString(firstName.toUpperCase()),
+  ).trim();
   final normalizedLastName = _adjustCompound(
     _normalizeString(lastName.toUpperCase()),
   ).trim();
@@ -26,17 +36,19 @@ String calculateCurp({
 
   firstFour = _filterCharacters(_replaceForbiddenWord(firstFour));
 
-  final internalConsonants = [
-    _firstInternalConsonant(normalizedLastName),
-    _firstInternalConsonant(normalizedSecondLastName),
-    _firstInternalConsonant(nameToUse),
-  ].join();
+  final internalConsonants = _filterCharacters(
+    [
+      _firstInternalConsonant(normalizedLastName),
+      _firstInternalConsonant(normalizedSecondLastName),
+      _firstInternalConsonant(nameToUse),
+    ].join(),
+  );
 
   final year = birthDate.year.toString();
   final yearSuffix = year.substring(year.length - 2);
   final month = birthDate.month.toString().padLeft(2, '0');
   final day = birthDate.day.toString().padLeft(2, '0');
-  final genderCode = gender.toUpperCase() == 'MALE' ? 'H' : 'M';
+  final genderCode = _genderCode(gender);
   final stateCode = MexicanStates.getCode(state);
 
   final incompleteCurp = [
@@ -53,6 +65,18 @@ String calculateCurp({
   return '$incompleteCurp${_verificationDigit(incompleteCurp)}';
 }
 
+bool validateCurp(String curp) {
+  final normalized = curp.trim().toUpperCase();
+  final match = RegExp(
+    r'^([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HMX](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$',
+  ).firstMatch(normalized);
+  if (match == null) {
+    return false;
+  }
+
+  return _verificationDigit(match.group(1)!) == match.group(2);
+}
+
 const List<String> _commonNamePrefixes = [
   'MARIA DEL ',
   'MARIA DE LOS ',
@@ -62,9 +86,34 @@ const List<String> _commonNamePrefixes = [
   'MA. ',
   'MA ',
   'M. ',
+  'M ',
   'J. ',
   'J ',
 ];
+
+void _validateRequiredData({
+  required String firstName,
+  required String lastName,
+  required DateTime birthDate,
+  required String gender,
+  required String state,
+}) {
+  if (firstName.trim().isEmpty) {
+    throw ArgumentError('Nombre es requerido');
+  }
+  if (lastName.trim().isEmpty) {
+    throw ArgumentError('Apellido Paterno es requerido');
+  }
+  if (gender.trim().isEmpty) {
+    throw ArgumentError('Genero es requerido');
+  }
+  if (state.trim().isEmpty) {
+    throw ArgumentError('Estado es requerido');
+  }
+  if (birthDate.year <= 0) {
+    throw ArgumentError('Fecha de nacimiento es requerido');
+  }
+}
 
 const Set<String> _compoundParts = {
   'DA',
@@ -215,7 +264,7 @@ String _nameToUse(String normalizedName) {
   final usesCommonPrefix =
       parts.length > 1 && _commonNamePrefixes.any(compactName.startsWith);
   if (usesCommonPrefix) {
-    return parts.last;
+    return parts[1];
   }
 
   return parts.first;
@@ -244,11 +293,15 @@ String _firstInternalConsonant(String value) {
     return 'X';
   }
 
-  final match = RegExp(
-    r'[BCDFGHJKLMNPQRSTVWXYZ]',
-  ).firstMatch(value.substring(1));
-  final consonant = match?.group(0) ?? 'X';
-  return consonant == 'Ñ' ? 'X' : consonant;
+  final consonant = value
+      .substring(1)
+      .replaceAll(RegExp(r'[AEIOU]', caseSensitive: false), '')
+      .substring(0, 1)
+      .trim();
+  if (consonant.isEmpty || consonant == 'Ñ') {
+    return 'X';
+  }
+  return consonant;
 }
 
 String _replaceForbiddenWord(String value) {
@@ -269,4 +322,13 @@ String _verificationDigit(String incompleteCurp) {
 
   final digit = 10 - (sum % 10);
   return digit == 10 ? '0' : '$digit';
+}
+
+String _genderCode(String gender) {
+  return switch (gender.toUpperCase()) {
+    'MALE' => 'H',
+    'FEMALE' => 'M',
+    'NON_BINARY' => 'X',
+    _ => 'M',
+  };
 }

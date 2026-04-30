@@ -25,7 +25,7 @@ class ResultCard extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             theme.colorScheme.primaryContainer,
-            theme.colorScheme.secondaryContainer,
+            theme.colorScheme.tertiaryContainer,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

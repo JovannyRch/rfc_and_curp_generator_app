@@ -17,10 +17,11 @@ final historyRepositoryProvider = Provider<HistoryRepository>((ref) {
 
 final historyProvider =
     StateNotifierProvider<HistoryNotifier, AsyncValue<List<CalculationEntity>>>(
-  (ref) => HistoryNotifier(ref.watch(historyRepositoryProvider)),
-);
+      (ref) => HistoryNotifier(ref.watch(historyRepositoryProvider)),
+    );
 
-class HistoryNotifier extends StateNotifier<AsyncValue<List<CalculationEntity>>> {
+class HistoryNotifier
+    extends StateNotifier<AsyncValue<List<CalculationEntity>>> {
   final HistoryRepository _repository;
   final _uuid = const Uuid();
 
@@ -50,6 +51,7 @@ class HistoryNotifier extends StateNotifier<AsyncValue<List<CalculationEntity>>>
     required DateTime birthDate,
     required String gender,
     required String birthState,
+    String tool = 'curp_calculator',
   }) async {
     final result = CurpCalculator.calculate(
       firstName: firstName,
@@ -70,6 +72,7 @@ class HistoryNotifier extends StateNotifier<AsyncValue<List<CalculationEntity>>>
       gender: gender,
       state: birthState,
       result: result,
+      tool: tool,
       createdAt: DateTime.now(),
     );
 
@@ -84,6 +87,7 @@ class HistoryNotifier extends StateNotifier<AsyncValue<List<CalculationEntity>>>
     required String lastName,
     required String secondLastName,
     required DateTime birthDate,
+    String tool = 'rfc_calculator',
   }) async {
     final result = RfcCalculator.calculate(
       firstName: firstName,
@@ -102,6 +106,37 @@ class HistoryNotifier extends StateNotifier<AsyncValue<List<CalculationEntity>>>
       gender: '',
       state: '',
       result: result,
+      tool: tool,
+      createdAt: DateTime.now(),
+    );
+
+    await _repository.saveCalculation(entity);
+    final current = state.valueOrNull ?? const <CalculationEntity>[];
+    state = AsyncValue.data([entity, ...current]);
+    return result;
+  }
+
+  Future<String> saveRfcMoralCalculation({
+    required String legalName,
+    required DateTime creationDate,
+    String tool = 'rfc_moral',
+  }) async {
+    final result = RfcCalculator.calculateJuristicPerson(
+      legalName: legalName,
+      creationDate: creationDate,
+    );
+
+    final entity = CalculationEntity(
+      id: _uuid.v4(),
+      type: 'RFC',
+      firstName: legalName,
+      lastName: '',
+      secondLastName: '',
+      birthDate: creationDate,
+      gender: '',
+      state: '',
+      result: result,
+      tool: tool,
       createdAt: DateTime.now(),
     );
 

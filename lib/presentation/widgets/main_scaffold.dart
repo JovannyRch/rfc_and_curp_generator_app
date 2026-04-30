@@ -11,8 +11,9 @@ class MainScaffold extends StatelessWidget {
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     if (location == AppRoutes.home) return 0;
-    if (location == AppRoutes.history) return 1;
-    if (location == AppRoutes.settings) return 2;
+    if (location == AppRoutes.tools) return 1;
+    if (location == AppRoutes.history) return 2;
+    if (location == AppRoutes.settings) return 3;
     return 0;
   }
 
@@ -22,9 +23,12 @@ class MainScaffold extends StatelessWidget {
         context.go(AppRoutes.home);
         break;
       case 1:
-        context.go(AppRoutes.history);
+        context.go(AppRoutes.tools);
         break;
       case 2:
+        context.go(AppRoutes.history);
+        break;
+      case 3:
         context.go(AppRoutes.settings);
         break;
     }
@@ -62,6 +66,11 @@ class MainScaffold extends StatelessWidget {
                 icon: const Icon(Icons.home_outlined),
                 selectedIcon: const Icon(Icons.home_rounded),
                 label: 'homeTitle'.tr(),
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.apps_outlined),
+                selectedIcon: const Icon(Icons.apps_rounded),
+                label: 'tools'.tr(),
               ),
               NavigationDestination(
                 icon: const Icon(Icons.history_toggle_off_rounded),

@@ -8,6 +8,7 @@ class CalculationEntity {
   final String gender;
   final String state;
   final String result;
+  final String tool;
   final DateTime createdAt;
 
   CalculationEntity({
@@ -20,6 +21,7 @@ class CalculationEntity {
     required this.gender,
     required this.state,
     required this.result,
+    required this.tool,
     required this.createdAt,
   });
 }
